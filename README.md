@@ -21,6 +21,11 @@ This package contains scripts that do the following;
 - automatically generate basic statistics about this data (min, max, ect)
 - automatically suggest a database layout that the client might have used 
 
+### Package dependencies 
+
+```
+pip install pandas 
+```
 
 ### Package Contents 
 
@@ -66,4 +71,10 @@ MAIN FOLDER
 	small_csv_file5.txt
 	small_...
 	small_csv_filen.txt 
+```
+
+The usage is rather simple. Just make sure that you are in the correct folder, and then; 
+
+```
+$ python hivescripts.py 
 ```
