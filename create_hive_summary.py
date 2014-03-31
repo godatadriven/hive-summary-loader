@@ -30,21 +30,21 @@ def generate_hive_queries(fields, tablename):
         to_execute=''
         if field[1]=='STRING':
             to_execute+="hive -e \""+HIVE_SETUP+" select count(distinct "+column_name+") as distinct_col from "+tablename+";\" > "+file_name+'\n';
-            echo "----\n" > file_name 
-            echo "Least frequent:" > file_name
+            echo "----" >> file_name 
+            echo "Least frequent:" >> file_name
             to_execute+="hive -e \""+HIVE_SETUP+" select "+column_name+", count(*) as count from "+tablename+" GROUP BY "+column_name+" ORDER BY count asc LIMIT 10;\" | sed \'s/\\t/|/g\'  >> "+file_name+'\n';
-            echo "----\n" > file_name 
-            echo "Most frequent:" > file_name
+            echo "----" >> file_name 
+            echo "Most frequent:" >> file_name
             to_execute+="hive -e \""+HIVE_SETUP+" select "+column_name+", count(*) as count from "+tablename+" GROUP BY "+column_name+" ORDER BY count desc LIMIT 10;\" | sed \'s/\\t/|/g\'  >> "+file_name+'\n';
         else:
             to_execute+="hive -e \""+HIVE_SETUP+" select max("+column_name+") as max from "+tablename+";\" > "+file_name+'\n';
-            echo "----\n" > file_name 
+            echo "----" >> file_name 
             to_execute+="hive -e \""+HIVE_SETUP+" select min("+column_name+") as min from "+tablename+";\" >> "+file_name+'\n';
-            echo "----\n" > file_name 
+            echo "----" >> file_name 
             to_execute+="hive -e \""+HIVE_SETUP+" select percentile_approx("+column_name+", 0.5) as median from "+tablename+";\" >> "+file_name+'\n';
-            echo "----\n" > file_name 
+            echo "----" >> file_name  
             to_execute+="hive -e \""+HIVE_SETUP+" select avg("+column_name+") as mean from "+tablename+";\" >> "+file_name+'\n';
-            echo "----\n" > file_name 
+            echo "----" >> file_name 
             to_execute+="hive -e \""+HIVE_SETUP+" select stddev_pop("+column_name+") as stdev from "+tablename+";\" >> "+file_name+'\n';
         query_file.write(to_execute)
             
