@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+circle.node {
+  stroke: #fff;
+  stroke-width: 2.5px;
+  fill: #ccc;
+}
+
+line.link {
+  stroke: #666;
+  stroke-opacity: .1;
+}
+
+text{
+  fill: black;
+  opacity: 0.2;
+}
+
+line.selected{
+  stroke-opacity: .9;
+}
+text.selected{
+  opacity: 0.9;
+}
+circle.selected{
+  stroke-opacity: 1;
+}
+circle.unselected{
+  stroke-opacity: .5;
+}
+</style>
+<body>
+
+this is the viewer for your hive tables 
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 1460,
+    height = 800;
+
+var color = d3.scale.category20();
+
+var force = d3.layout.force()
+    .charge(120)
+    .linkDistance(500)
+    .size([width, height]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+d3.json("db_connections.json", function(error, graph) {
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+      .enter().append("g")
+      .attr("class","link")
+
+
+  var lines = link.append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return 2; });
+
+  var linkedByIndex = {};
+  graph.links.forEach(function(d) {
+    linkedByIndex[d.source.index + "," + d.target.index] = 1;
+  });
+
+  var neighboring = function(a, b) {
+  return linkedByIndex[a.index + "," + b.index];
+  }
+
+  var linetext = link.append("text")
+      .attr("x", 12)
+      .attr("y", 12)
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "12px")
+      .text(function(d) { return d.values.join(); });
+
+  var node = svg.selectAll(".node")
+      .data(force.nodes())
+    .enter().append("g")
+      .attr("class", "node")
+      .call(force.drag);
+
+  node.append("circle")
+      .attr("r", 8)
+      .on("mouseover", function(d){
+        lines.classed("selected", function(o){
+          return o.source === d || o.target === d
+        });
+        linetext.classed("selected", function(o){
+          return o.source === d || o.target === d
+        });
+        nodetext.classed("selected", function(o){
+          return o.name === d.name 
+        })
+        // node.style("opacity", function(o) {
+        //   return neighboring(d, o) ? 1 : 0.4;
+        // });
+      })
+      .on("mouseout", function(d){ 
+        lines.classed({'selected': false, 'unselected': false})
+        linetext.classed({'selected': false})
+        nodetext.classed({'selected': false})
+      });
+
+  var nodetext = node.append("text")
+      .attr("x", 15)
+      .attr("dy", ".35em")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "12px")
+      .attr("fill","red")
+      .attr("stroke","black")
+      .text(function(d) { return d.name; });
+
+  force.on("tick", function() {
+    lines.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    linetext.attr("x", function(d) { return (d.source.x + d.target.x)/2;})
+      .attr("y", function(d) { return (d.source.y + d.target.y)/2;});
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+});
+
+</script>
