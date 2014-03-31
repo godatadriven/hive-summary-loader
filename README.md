@@ -142,7 +142,7 @@ $ python create_hive_summary.py
 This script is used after we generated all the Hive queries to obtain the table statistics. It runs all the *.sh scripts in a folder ( by default in the hive folder in the current working directory).
 After a given script is run it will be moved to the 'done' directory.
 
-This is used so we can run the long Hive queries during the night. Make sure that you are in the correct directory and that the bash scripts which need to be run to obtain the table statistics are in the hive directory:
+This is used so we can run the long Hive queries during the night. Make sure that you are in the correct directory and that the bash scripts which need to be run to obtain the table statistics are in the scripts directory:
 
 ```
 $ nohup sh run_all_scripts.sh

@@ -1,5 +1,5 @@
 #!/bin/bash
-pathDir=`pwd`/hive
+pathDir=`pwd`/scripts
 scripts_to_run_dir=$pathDir
 scripts_archive_dir=$pathDir/done
 mkdir -p $scripts_archive_dir
