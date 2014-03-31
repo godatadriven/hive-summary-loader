@@ -22,7 +22,7 @@ def generate_hive_queries(fields, tablename):
         os.stat(RESULTS_DIR)
     except:
         os.mkdir(RESULTS_DIR)
-    query_file = open( SCRIPT_DIR + '/' + tablename + '.hive', "w")
+    query_file = open( SCRIPT_DIR + '/' + tablename + '.sh', "w")
     query_file.write("#!/bin/bash \n")
     for field in fields:
         column_name=field[0]
