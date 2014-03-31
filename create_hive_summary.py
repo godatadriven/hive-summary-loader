@@ -31,10 +31,10 @@ def generate_hive_queries(fields, tablename):
         if field[1]=='STRING':
             to_execute+="hive -e \""+HIVE_SETUP+" select count(distinct "+column_name+") as distinct_col from "+tablename+";\" > "+file_name+'\n';
             to_execute+="echo \"----\" >>"+file_name+'\n';
-            to_execute+="echo \"Least frequent:\"\n>>"+file_name+'\n';
+            to_execute+="echo \"Least frequent:\">>"+file_name+'\n';
             to_execute+="hive -e \""+HIVE_SETUP+" select "+column_name+", count(*) as count from "+tablename+" GROUP BY "+column_name+" ORDER BY count asc LIMIT 10;\" | sed \'s/\\t/|/g\'  >> "+file_name+'\n';
             to_execute+="echo \"----\" >>"+file_name+'\n';
-            to_execute+="echo \"Most frequent:\"\n>>"+file_name+'\n';
+            to_execute+="echo \"Most frequent:\">>"+file_name+'\n';
             to_execute+="hive -e \""+HIVE_SETUP+" select "+column_name+", count(*) as count from "+tablename+" GROUP BY "+column_name+" ORDER BY count desc LIMIT 10;\" | sed \'s/\\t/|/g\'  >> "+file_name+'\n';
         else:
             to_execute+="hive -e \""+HIVE_SETUP+" select max("+column_name+") as max from "+tablename+";\" > "+file_name+'\n';
