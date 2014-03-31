@@ -18,8 +18,11 @@ class color:
 
 # set the global start values. we assume that this script is run in a folder that has all the hive data         
 PATH = os.getcwd() 
-HIVE_SCRIPT_PATH = PATH + '/hive/create_all_tables.hive'
-JSON_DATA_PATH = PATH + '/json'
+PATH = '/Users/code/Desktop'
+HIVE_SCRIPT_PATH = PATH + '/maris.hive'
+JSON_DATA_PATH = PATH + '/db_connections.json'
+
+print "Now starting with parsing the hive script to a table layout."
 
 try: 
    os.stat(HIVE_SCRIPT_PATH)
@@ -32,7 +35,6 @@ try:
 except: 
     os.mkdir(JSON_DATA_PATH)
 
-json_blob = open(JSON_DATA_PATH + '/db_connections.json',"w")
 hive_blob = open(HIVE_SCRIPT_PATH,"r").read()
 
 # this ugly script creates a dict. key = table_name, values = [colnames]
@@ -56,31 +58,39 @@ for i in table_info:
    table_mapper[ i ] = counter 
    counter += 1 
 
-# this bit creates an arc_dict. key = common_colname, values = set([tables])
-colname_set = set([])
-for colname in [ table_info[key] for key in table_info ]:
-   colname_set.update( colname )
-arc_info = {} 
-for colname in colname_set: 
-   arc_info[ colname ] = [ table for table in table_info if colname in table_info[table]]
-   arc_info[ colname ].sort() 
-   arc_info[ colname ] = tuple( arc_info[ colname ] )
+link_dict = {} 
+for table in table_info: 
+    for link in table_info[table]: 
+        if link in link_dict.keys():
+            link_dict[link].append( table ) 
+        else: 
+            link_dict[link] = [table] 
 
-arc_set = {} 
-for colname in arc_info: 
-   if arc_info[colname] in arc_set.keys():
-      arc_set[ arc_info[colname] ].update(colname)
-   else: 
-      arc_set[ arc_info[colname] ] = set([colname])
-
-for arc in arc_set: 
-   if len(arc) == 1: 
-      pass 
-   else:
-      for link in [{'source':table_mapper[e[0]],'target':table_mapper[e[1]], 'values' : list(arc_set[arc])} for e in itertools.combinations(arc, 2)]:
-         result['links'].append(link)
+arc_dict = {}            
+for link in link_dict:
+    if not len(link_dict[link]) > 1:
+        pass
+    elif link == '':
+        pass
+    else: 
+        table_combinations = list(itertools.combinations( link_dict[link] , 2 )) 
+        for arc in table_combinations: 
+            if arc not in arc_dict.keys(): 
+                arc_dict[arc] = [link]
+            else:
+                arc_dict[arc].append(link)
+                    
+for arc in arc_dict:
+    link = { 'source' : table_mapper[ arc[0] ],
+             'target' : table_mapper[ arc[1] ], 
+             'values' : arc_dict[arc] } 
+    result['links'].append( link ) 
 
 print "We seem to have " + str(len(table_mapper.keys())) + " tables."
-print "These tables have about " + str(len(arc_set)) + " connections in common."
+print "These tables have about " + str(len(arc_dict)) + " connections in between them."
 
+json_blob = open(JSON_DATA_PATH,"w")
+json_blob.write( json.dumps( result ) ) 
+json_blob.close()
 
+print "JSON file has been saved to " + JSON_DATA_PATH
