@@ -6,6 +6,10 @@ from common import create_dir, color, get_files_in_dir_with_extension
 #DATA_FILES = [ thing for thing in FILES if os.path.isfile(HIVE_SCRIPT_PATH+"/"+thing) and thing.endswith('.hive')]
 DATA_FILES = get_files_in_dir_with_extension(HIVE_SCRIPT_PATH, '.hive')
 
+if not DATA_FILES:
+    print color.RED + "No hive files found in directory "+PATH+ color.END
+    sys.exit(0)
+
 #Hive variables
 HIVE_SETUP="use "+HIVE_DB+"; set hive.cli.print.header=true; "
 

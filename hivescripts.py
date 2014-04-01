@@ -92,7 +92,7 @@ def parse_coltype( coltype ):
     return 'STRING' 
     
 '''
-
+For each column try to identify python type and translate it to Hive type
 '''
 
 def generate_column_types(datafile, delimiter):
@@ -103,6 +103,10 @@ def generate_column_types(datafile, delimiter):
     for col in range(0,len(df.dtypes)): 
         middlebit += df.columns[col] +" "+ parse_coltype( str( df.dtypes[col] ) ) + ',\n'
     return middlebit[:-2] + ')\n' 
+
+'''
+Generate the Hive create and drop statements. Write each DDL in a different file named: tablename.hive
+'''
 
 def generate_hive_script(datafile): 
     print color.BLUE + datafile + color.END
@@ -123,6 +127,10 @@ def generate_hive_script(datafile):
     print 'Hive script created at: ' + HIVE_SCRIPT_PATH+'/'+tablename + '.hive' 
     return tablename + '.hive'   
  
+'''
+Actually create the hive table, otherwise print out the command which we would run
+'''
+
 def create_hive_table(datafile):
     script=generate_hive_script(datafile)
     if dry_run:
@@ -131,10 +139,19 @@ def create_hive_table(datafile):
         subprocess.check_call('hive -f '+script, shell=True, stderr=subprocess.STDOUT)
     print color.GREEN + "Hive table created with script " + script + color.END
     
+'''
+Define workflow : 
+- create hive table, which also includes identifying the columns, types
+- move data to HDFS
+'''
 def process_data_file(datafile): 
     print "Now starting with:" + datafile 
     create_hive_table(datafile)
     move_data_file(datafile) 
+
+'''
+Use to create one big file with all the table definitions. Used to build up the tables graph.
+'''
 
 def create_big_hive_query(): 
     print color.UNDERLINE + "Now starting with creating big hive query" + color.END
