@@ -2,40 +2,20 @@
 import os 
 import json 
 import itertools 
-
-# define a color scheme for print output 
-class color:
-   PURPLE = '\033[95m'
-   CYAN = '\033[96m'
-   DARKCYAN = '\033[36m'
-   BLUE = '\033[94m'
-   GREEN = '\033[92m'
-   YELLOW = '\033[93m'
-   RED = '\033[91m'
-   BOLD = '\033[1m'
-   UNDERLINE = '\033[4m'
-   END = '\033[0m'
-
-# set the global start values. we assume that this script is run in a folder that has all the hive data         
-PATH = os.getcwd() 
-PATH = '/Users/code/Desktop'
-HIVE_SCRIPT_PATH = PATH + '/maris.hive'
-JSON_DATA_PATH = PATH + '/db_connections.json'
+from common import color, create_dir
+from settings import PATH, HIVE_SCRIPT_PATH, HIVE_DB, HDFS_PATH, BIG_HIVE_SCRIPT, JSON_DATA_PATH
 
 print "Now starting with parsing the hive script to a table layout."
 
 try: 
-   os.stat(HIVE_SCRIPT_PATH)
+   os.stat(os.path.dirname(BIG_HIVE_SCRIPT))
 except: 
    print color.RED + "WARNING! HIVE SCRIPT PATH DOES NOT EXIST!" + color.END
    print "Check if everything went alright during " + color.UNDERLINE + "hivescripts.py" + color.END 
 
-try: 
-    os.stat(JSON_DATA_PATH) 
-except: 
-    os.mkdir(JSON_DATA_PATH)
+create_dir(os.path.dirname(JSON_DATA_PATH))
 
-hive_blob = open(HIVE_SCRIPT_PATH,"r").read()
+hive_blob = open(BIG_HIVE_SCRIPT,"r").read()
 
 # this ugly script creates a dict. key = table_name, values = [colnames]
 table_blobs = hive_blob.split("DROP TABLE IF EXISTS ")
